@@ -2,6 +2,8 @@ from eystar import eystar
 
 
 def main():
-    lines = eystar('boards/board-1-1.txt')
+    lines = eystar('boards/board-1-2.txt')
 
-main()
+
+if __name__ == '__main__':
+    main()

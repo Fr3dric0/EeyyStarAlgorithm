@@ -61,57 +61,95 @@ def calc_heuristic(board, goal_node):
             node.h = manhattan_heuristic(node.x, node.y, goal_node)
 
 
-def best_first_search(board, start_node):
+def attach_and_eval(child, parent):
+    child.parent = parent
+    child.g = parent.f
+
+
+def propagate_path_improvements(child):
+    pass
+
+
+def update_node(successor: Node, current: Node, goal_node: Node):
+    successor.g = current.g + 10
+    successor.h = manhattan_heuristic(successor.x, successor.y, goal_node)
+    successor.parent = current
+
+
+def best_first_search(board, start_node, goal_node):
     closed = set()
     # Must be in sorted order
-    open = list()
+    open = []
+    heapq.heapify(open)
 
-    g = start_node.g
-    f = start_node.f
-    n0 = start_node
+    heapq.heappush(open, start_node)
 
-    open.append(n0)
+    iterations = 0
 
-    solved = False
-    while not solved:
-        if not len(open):
-            raise ValueError('Could not find a solution')
-
-        x: Node = open.pop()
+    while len(open):
+        iterations += 1
+        x: Node = heapq.heappop(open)
+        print(f'{iterations}. {x}')
         closed.add(x)
 
         if x.is_goal():
+            print(iterations)
+            print(x.parent)
             return x
+
+        successors = x.neighbors
+
+        for s in successors:
+            if not s.is_wall(len(board[0]), len(board)) and s not in closed:
+                if s in open:
+                    if s.g > (x.g + 10):
+                        update_node(s, x, goal_node)
+                else:
+                    update_node(s, x, goal_node)
+                    heapq.heappush(open, s)
+
+    print(iterations)
+    return None
+
+
+def print_best_path(goal: Node, start: Node):
+    if not goal:
+        return None
+
+    print(f'Goal: {goal}')
+
+    node = goal
+    while node.parent != start:
+        node = node.parent
+        print(f'\t{node}')
+
+    print(f'Start: {node.parent}')
+
+
+def project_best_path(board, goal: Node, start: Node):
+    new_board = []
+
+    for row in board:
+        new_board.append(list(map(lambda n: n.symbol, row)))
+
+    node = goal
+    while node.parent != start:
+        node = node.parent
+        new_board[node.y][node.x] = '⬅'
+
+    for row in new_board:
+        for col in row:
+            print(col, end='')
+        print()
 
 
 def eystar(filename):
     lines = readfile(filename)
-    print('\n'.join(lines))
     board, start_node, goal_node = create_board(lines)
     calc_heuristic(board, goal_node)
     map_neighbors(board)
 
-    n = start_node
-    for i in range(5):
-        n.visited = True
-        print(n)
-        if not n.neighbors:
-            raise TypeError('Node has no more neigbors')
+    goal = best_first_search(board, start_node, goal_node)
 
-        if not n.neighbors[0].visited:
-            n = n.neighbors[0]
-        else:
-            n = n.neighbors[1]
-
-    # print(f'Current: {start_node}')
-    # for n in start_node.neighbors:
-    #     print(n)
-
-    closed = set()
-    open = set()
-
-    # for y in range(len(board)):
-    #     for x in range(len(board[y])):
-    #
-    #         if x < len(board[y]) - 1:
-    #             print(f'{board[y][x].symbol} {board[y][x+1].symbol}|', end='')
+    print_best_path(goal, start_node)
+    project_best_path(board, goal, start_node)
