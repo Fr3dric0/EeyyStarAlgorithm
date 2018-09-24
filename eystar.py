@@ -1,6 +1,6 @@
 import heapq
 
-from node import Node
+from node import Node, get_path_weight
 
 
 def manhattan_heuristic(x, y, goal: Node):
@@ -36,12 +36,19 @@ def calc_heuristic(board, goal_node):
 
 
 def update_node(successor: Node, current: Node, goal_node: Node):
-    successor.g = current.g + 10
+    successor.g = current.g + get_path_weight(current.symbol)
     successor.h = manhattan_heuristic(successor.x, successor.y, goal_node)
     successor.parent = current
 
 
-def find_neighbors(board: list, current: Node):
+def find_neighbors(board: list, current: Node) -> list:
+    """
+    Identifies all the neighbors to a node on the board.
+    The neighbors is pushed to a heap.
+    :param board:
+    :param current:
+    :return:
+    """
     neighbors = []
     heapq.heapify(neighbors)
 
@@ -100,7 +107,8 @@ def eystar(board, start_node, goal_node) -> (Node, list, set):
     :return (Node, list, set): Returns the goal node if found, and the opened and closed list.
                                 The opened list is a max-heap and has to be used with heapq
     """
-    calc_heuristic(board, goal_node)
+    # Doing a the heuristic calculation before will yield a different, but correct solution
+    # calc_heuristic(board, goal_node)
 
     goal, opened, closed = best_first_search(board, start_node, goal_node)
 

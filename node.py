@@ -1,13 +1,34 @@
 import sys
 
+WEIGHTS = {
+    # Wall
+    '#': sys.maxsize,
+    # Water
+    'w': 100,
+    # Mountains
+    'm': 50,
+    # Forests
+    'f': 10,
+    # Grasslands
+    'g': 5,
+    # Roads
+    'r': 1,
+    # Floor
+    '.': 1
+}
+
+
+def get_path_weight(symbol: str) -> int:
+    return WEIGHTS[symbol] if symbol in WEIGHTS else 0
+
 
 class Node:
-    def __init__(self, x, y, symbol='#'):
+    def __init__(self, x, y, symbol=None):
         self.x = x
         self.y = y
         self.state = f'({x},{y})'
         self.symbol = symbol
-        self.g = 0
+        self.g = get_path_weight(symbol)
         self.h: int = sys.maxsize
 
         self.left = None

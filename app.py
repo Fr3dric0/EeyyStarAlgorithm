@@ -45,6 +45,7 @@ def print_best_path(goal: Node, start: Node):
 
 def project_best_path(board, goal: Node, start: Node):
     new_board = []
+    steps = 0
 
     for row in board:
         new_board.append(list(map(lambda n: n.symbol, row)))
@@ -55,10 +56,14 @@ def project_best_path(board, goal: Node, start: Node):
             node = node.parent
             new_board[node.y][node.x] = 'o'
 
+            steps += 1
+
     for row in new_board:
         for col in row:
             print(col, end='')
         print()
+
+    print(f'Path length: {steps}')
 
 
 def main():
@@ -73,7 +78,7 @@ def main():
 
     goal, opened, closed = eystar(board, start_node, goal_node)
 
-    # print_best_path(goal, start_node)
+    print_best_path(goal, start_node)
     project_best_path(board, goal, start_node)
 
 
