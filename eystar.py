@@ -61,15 +61,6 @@ def calc_heuristic(board, goal_node):
             node.h = manhattan_heuristic(node.x, node.y, goal_node)
 
 
-def attach_and_eval(child, parent):
-    child.parent = parent
-    child.g = parent.f
-
-
-def propagate_path_improvements(child):
-    pass
-
-
 def update_node(successor: Node, current: Node, goal_node: Node):
     successor.g = current.g + 10
     successor.h = manhattan_heuristic(successor.x, successor.y, goal_node)
