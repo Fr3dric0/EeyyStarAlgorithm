@@ -14,7 +14,6 @@ class Node:
         self.right = None
         self.up = None
         self.down = None
-        self.neighbors = []
         self.parent = None
 
         self.visited = False
@@ -22,17 +21,8 @@ class Node:
     def __str__(self):
         return f'Node(x: {self.x}, y: {self.y}, symbol: {self.symbol}, g: {self.g}, h: {self.h})'
 
-    def add_neighbor(self, node):
-        self.neighbors.append(node)
-        # Ensure that the minimum item comes first
-        self.neighbors = sorted(self.neighbors, key=lambda n: n.f)
-
-    def is_wall(self, board_width, board_height):
-        return self.symbol == '#' \
-               or self.x < 1 \
-               or self.x >= board_width \
-               or self.y < 1 \
-               or self.y >= board_height
+    def is_wall(self):
+        return self.symbol == '#'
 
     def is_goal(self):
         return self.h == 0

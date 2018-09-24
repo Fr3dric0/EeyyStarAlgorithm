@@ -7,32 +7,6 @@ def manhattan_heuristic(x, y, goal: Node):
     return abs(x - goal.x) + abs(y - goal.y)
 
 
-def readfile(path):
-    with open(path, 'r') as f:
-        return [line.strip() for line in f.readlines()]
-
-
-def create_board(lines):
-    board = []
-    start_node = None
-    goal_node = None
-
-    for y in range(len(lines)):
-        row = []
-        for x in range(len(lines[y])):
-            node = Node(x, y, lines[y][x])
-
-            if node.symbol == 'B':
-                goal_node = node
-            elif node.symbol == 'A':
-                start_node = node
-
-            row.append(node)
-        board.append(row)
-
-    return board, start_node, goal_node
-
-
 def map_neighbors(board):
     for y in range(len(board)):
         for x in range(len(board[y])):
@@ -67,80 +41,67 @@ def update_node(successor: Node, current: Node, goal_node: Node):
     successor.parent = current
 
 
+def find_neighbors(board: list, current: Node):
+    neighbors = []
+    heapq.heapify(neighbors)
+
+    if current.x < len(board[0]) - 1:
+        heapq.heappush(neighbors, board[current.y][current.x + 1])
+
+    if current.x > 0:
+        heapq.heappush(neighbors, board[current.y][current.x - 1])
+
+    if current.y > 0:
+        heapq.heappush(neighbors, board[current.y - 1][current.x])
+
+    if current.y < len(board) - 1:
+        heapq.heappush(neighbors, board[current.y + 1][current.x])
+
+    return heapq.nsmallest(4, neighbors)
+
+
 def best_first_search(board, start_node, goal_node):
     closed = set()
     # Must be in sorted order
-    open = []
-    heapq.heapify(open)
+    opened = []
+    heapq.heapify(opened)
 
-    heapq.heappush(open, start_node)
+    heapq.heappush(opened, start_node)
 
-    iterations = 0
-
-    while len(open):
-        iterations += 1
-        x: Node = heapq.heappop(open)
-        print(f'{iterations}. {x}')
+    while len(opened):
+        x: Node = heapq.heappop(opened)
+        # print(f'{iterations}. {x}')
         closed.add(x)
 
         if x.is_goal():
-            print(iterations)
-            print(x.parent)
-            return x
+            return x, opened, closed
 
-        successors = x.neighbors
+        successors = find_neighbors(board, x)
 
         for s in successors:
-            if not s.is_wall(len(board[0]), len(board)) and s not in closed:
-                if s in open:
+            if not s.is_wall() and s not in closed:
+                if s in opened:
                     if s.g > (x.g + 10):
                         update_node(s, x, goal_node)
                 else:
                     update_node(s, x, goal_node)
-                    heapq.heappush(open, s)
+                    heapq.heappush(opened, s)
 
-    print(iterations)
-    return None
-
-
-def print_best_path(goal: Node, start: Node):
-    if not goal:
-        return None
-
-    print(f'Goal: {goal}')
-
-    node = goal
-    while node.parent != start:
-        node = node.parent
-        print(f'\t{node}')
-
-    print(f'Start: {node.parent}')
+    return None, opened, closed
 
 
-def project_best_path(board, goal: Node, start: Node):
-    new_board = []
-
-    for row in board:
-        new_board.append(list(map(lambda n: n.symbol, row)))
-
-    node = goal
-    while node.parent != start:
-        node = node.parent
-        new_board[node.y][node.x] = '⬅'
-
-    for row in new_board:
-        for col in row:
-            print(col, end='')
-        print()
-
-
-def eystar(filename):
-    lines = readfile(filename)
-    board, start_node, goal_node = create_board(lines)
+def eystar(board, start_node, goal_node) -> (Node, list, set):
+    """
+    Uses Best-First-Search with manhattan heuristic to determine the best path
+    from a start node to a goal node
+    :param board:
+    :param start_node:
+    :param goal_node:
+    :return (Node, list, set): Returns the goal node if found, and the opened and closed list.
+                                The opened list is a max-heap and has to be used with heapq
+    """
     calc_heuristic(board, goal_node)
-    map_neighbors(board)
 
-    goal = best_first_search(board, start_node, goal_node)
+    goal, opened, closed = best_first_search(board, start_node, goal_node)
 
-    print_best_path(goal, start_node)
-    project_best_path(board, goal, start_node)
+    return goal, opened, closed
