@@ -1,5 +1,6 @@
 import sys
 from eystar import eystar
+from image import project_board_to_image
 from node import Node
 
 
@@ -65,6 +66,8 @@ def project_best_path(board, goal: Node, start: Node):
 
     print(f'Path length: {steps}')
 
+    return new_board
+
 
 def main():
     filename = sys.argv[1] if len(sys.argv) > 1 else None
@@ -79,7 +82,9 @@ def main():
     goal, opened, closed = eystar(board, start_node, goal_node)
 
     print_best_path(goal, start_node)
-    project_best_path(board, goal, start_node)
+    solution = project_best_path(board, goal, start_node)
+
+    project_board_to_image(solution, filename.replace('boards/', ''))
 
 
 if __name__ == '__main__':

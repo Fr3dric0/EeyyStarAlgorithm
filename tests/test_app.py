@@ -2,6 +2,7 @@ import unittest
 
 from app import readfile, project_best_path, create_board
 from eystar import eystar
+from image import project_board_to_image
 
 
 def assert_path_length(goal, start, expected_length):
@@ -26,12 +27,14 @@ def generic_board_test(filename, path_length):
     print('\n'.join(lines))
     print('\n')
 
-    project_best_path(board, goal, start_node)
+    solution = project_best_path(board, goal, start_node)
+
+    project_board_to_image(solution, filename.replace('boards/', ''), False)
 
     assert_path_length(goal, start_node, path_length)
 
 
-class TestApp(unittest.TestCase):
+class TestUnweightedBoards(unittest.TestCase):
     def test_board_1(self):
         generic_board_test('boards/board-1-1.txt', 15)
 
@@ -43,3 +46,17 @@ class TestApp(unittest.TestCase):
 
     def test_board_4(self):
         generic_board_test('boards/board-1-4.txt', 25)
+
+
+class TestWeightedBoards(unittest.TestCase):
+    def test_board_1(self):
+        generic_board_test('boards/board-2-1.txt', 32)
+
+    def test_board_2(self):
+        generic_board_test('boards/board-2-2.txt', 33)
+
+    def test_board_3(self):
+        generic_board_test('boards/board-2-3.txt', 50)
+
+    def test_board_4(self):
+        generic_board_test('boards/board-2-4.txt', 54)
