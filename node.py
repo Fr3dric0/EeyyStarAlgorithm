@@ -26,17 +26,12 @@ class Node:
     def __init__(self, x, y, symbol=None):
         self.x = x
         self.y = y
-        self.state = f'({x},{y})'
         self.symbol = symbol
         self.g = get_path_weight(symbol)
+        # Heuristics has to be set initially in a sensible way
         self.h: int = sys.maxsize
 
-        self.left = None
-        self.right = None
-        self.up = None
-        self.down = None
         self.parent = None
-
         self.visited = False
 
     def __str__(self):

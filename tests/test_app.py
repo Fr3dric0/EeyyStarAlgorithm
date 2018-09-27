@@ -1,8 +1,13 @@
+##
+#
+# Run tests by calling ./run_test.sh in the root of the projects.
+# The script will generate all the expected boards with solutions
+##
 import unittest
 
-from app import readfile, project_best_path, create_board
+from app import readfile, project_best_path, create_board, get_clean_board
 from eystar import eystar
-from image import project_board_to_image
+from visualize import generate_board_image
 
 
 def assert_path_length(goal, start, expected_length):
@@ -18,7 +23,7 @@ def assert_path_length(goal, start, expected_length):
     assert count == expected_length, f'Expected path length to be {expected_length}, instead got {count}'
 
 
-def generic_board_test(filename, path_length):
+def generic_board_test(filename, path_length, omit_stats=True):
     lines = readfile(filename)
     board, start_node, goal_node = create_board(lines)
 
@@ -27,9 +32,12 @@ def generic_board_test(filename, path_length):
     print('\n'.join(lines))
     print('\n')
 
-    solution = project_best_path(board, goal, start_node)
+    if omit_stats:
+        solution = project_best_path(board, goal, start_node)
+    else:
+        solution = project_best_path(board, goal, start_node, opened, closed)
 
-    project_board_to_image(solution, filename.replace('boards/', ''), False)
+    generate_board_image(get_clean_board(board), solution, filename.replace('boards/', ''), False)
 
     assert_path_length(goal, start_node, path_length)
 
@@ -47,16 +55,22 @@ class TestUnweightedBoards(unittest.TestCase):
     def test_board_4(self):
         generic_board_test('boards/board-1-4.txt', 25)
 
+    def test_board_5(self):
+        generic_board_test('boards/board-1-5.txt', 14)
+
 
 class TestWeightedBoards(unittest.TestCase):
     def test_board_1(self):
-        generic_board_test('boards/board-2-1.txt', 32)
+        generic_board_test('boards/board-2-1.txt', 32, False)
 
     def test_board_2(self):
-        generic_board_test('boards/board-2-2.txt', 33)
+        generic_board_test('boards/board-2-2.txt', 37, False)
 
     def test_board_3(self):
-        generic_board_test('boards/board-2-3.txt', 50)
+        generic_board_test('boards/board-2-3.txt', 46, False)
 
     def test_board_4(self):
-        generic_board_test('boards/board-2-4.txt', 54)
+        generic_board_test('boards/board-2-4.txt', 54, False)
+
+    def test_board_5(self):
+        generic_board_test('boards/board-2-5.txt', 47, False)
