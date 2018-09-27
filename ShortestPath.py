@@ -165,31 +165,3 @@ class ShortestPath:
                 return 1
 
             self.generate_neighbours(node)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
